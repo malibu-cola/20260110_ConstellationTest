@@ -4,7 +4,7 @@ IAU（国際天文学連合）が定める88星座の名称を学習・テスト
 
 ## デモ
 
-GitHub Pagesで公開中: `https://<username>.github.io/<repository>/`
+GitHub Pagesで公開中: `https://malibu-cola.github.io/20260110_ConstellationTest/`
 
 ## 機能
 
