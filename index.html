@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>88星座テスト</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.73.0/build/stlite.css"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.73.0/build/stlite.js"></script>
+    <script>
+      stlite.mount(
+        {
+          requirements: [],
+          entrypoint: "app.py",
+          files: {
+            "app.py": `
+import streamlit as st
+import random
+import json
+
+CONSTELLATIONS_JSON = '''
+[
+  {"japanese": "アンドロメダ座", "latin": "Andromeda", "abbr": "And"},
+  {"japanese": "ポンプ座", "latin": "Antlia", "abbr": "Ant"},
+  {"japanese": "ふうちょう座", "latin": "Apus", "abbr": "Aps"},
+  {"japanese": "みずがめ座", "latin": "Aquarius", "abbr": "Aqr"},
+  {"japanese": "わし座", "latin": "Aquila", "abbr": "Aql"},
+  {"japanese": "さいだん座", "latin": "Ara", "abbr": "Ara"},
+  {"japanese": "おひつじ座", "latin": "Aries", "abbr": "Ari"},
+  {"japanese": "ぎょしゃ座", "latin": "Auriga", "abbr": "Aur"},
+  {"japanese": "うしかい座", "latin": "Boötes", "abbr": "Boo"},
+  {"japanese": "ちょうこくぐ座", "latin": "Caelum", "abbr": "Cae"},
+  {"japanese": "きりん座", "latin": "Camelopardalis", "abbr": "Cam"},
+  {"japanese": "かに座", "latin": "Cancer", "abbr": "Cnc"},
+  {"japanese": "りょうけん座", "latin": "Canes Venatici", "abbr": "CVn"},
+  {"japanese": "おおいぬ座", "latin": "Canis Major", "abbr": "CMa"},
+  {"japanese": "こいぬ座", "latin": "Canis Minor", "abbr": "CMi"},
+  {"japanese": "やぎ座", "latin": "Capricornus", "abbr": "Cap"},
+  {"japanese": "りゅうこつ座", "latin": "Carina", "abbr": "Car"},
+  {"japanese": "カシオペヤ座", "latin": "Cassiopeia", "abbr": "Cas"},
+  {"japanese": "ケンタウルス座", "latin": "Centaurus", "abbr": "Cen"},
+  {"japanese": "ケフェウス座", "latin": "Cepheus", "abbr": "Cep"},
+  {"japanese": "くじら座", "latin": "Cetus", "abbr": "Cet"},
+  {"japanese": "カメレオン座", "latin": "Chamaeleon", "abbr": "Cha"},
+  {"japanese": "コンパス座", "latin": "Circinus", "abbr": "Cir"},
+  {"japanese": "はと座", "latin": "Columba", "abbr": "Col"},
+  {"japanese": "かみのけ座", "latin": "Coma Berenices", "abbr": "Com"},
+  {"japanese": "みなみのかんむり座", "latin": "Corona Australis", "abbr": "CrA"},
+  {"japanese": "かんむり座", "latin": "Corona Borealis", "abbr": "CrB"},
+  {"japanese": "からす座", "latin": "Corvus", "abbr": "Crv"},
+  {"japanese": "コップ座", "latin": "Crater", "abbr": "Crt"},
+  {"japanese": "みなみじゅうじ座", "latin": "Crux", "abbr": "Cru"},
+  {"japanese": "はくちょう座", "latin": "Cygnus", "abbr": "Cyg"},
+  {"japanese": "いるか座", "latin": "Delphinus", "abbr": "Del"},
+  {"japanese": "かじき座", "latin": "Dorado", "abbr": "Dor"},
+  {"japanese": "りゅう座", "latin": "Draco", "abbr": "Dra"},
+  {"japanese": "こうま座", "latin": "Equuleus", "abbr": "Equ"},
+  {"japanese": "エリダヌス座", "latin": "Eridanus", "abbr": "Eri"},
+  {"japanese": "ろ座", "latin": "Fornax", "abbr": "For"},
+  {"japanese": "ふたご座", "latin": "Gemini", "abbr": "Gem"},
+  {"japanese": "つる座", "latin": "Grus", "abbr": "Gru"},
+  {"japanese": "ヘルクレス座", "latin": "Hercules", "abbr": "Her"},
+  {"japanese": "とけい座", "latin": "Horologium", "abbr": "Hor"},
+  {"japanese": "うみへび座", "latin": "Hydra", "abbr": "Hya"},
+  {"japanese": "みずへび座", "latin": "Hydrus", "abbr": "Hyi"},
+  {"japanese": "インディアン座", "latin": "Indus", "abbr": "Ind"},
+  {"japanese": "とかげ座", "latin": "Lacerta", "abbr": "Lac"},
+  {"japanese": "しし座", "latin": "Leo", "abbr": "Leo"},
+  {"japanese": "こじし座", "latin": "Leo Minor", "abbr": "LMi"},
+  {"japanese": "うさぎ座", "latin": "Lepus", "abbr": "Lep"},
+  {"japanese": "てんびん座", "latin": "Libra", "abbr": "Lib"},
+  {"japanese": "おおかみ座", "latin": "Lupus", "abbr": "Lup"},
+  {"japanese": "やまねこ座", "latin": "Lynx", "abbr": "Lyn"},
+  {"japanese": "こと座", "latin": "Lyra", "abbr": "Lyr"},
+  {"japanese": "テーブルさん座", "latin": "Mensa", "abbr": "Men"},
+  {"japanese": "けんびきょう座", "latin": "Microscopium", "abbr": "Mic"},
+  {"japanese": "いっかくじゅう座", "latin": "Monoceros", "abbr": "Mon"},
+  {"japanese": "はえ座", "latin": "Musca", "abbr": "Mus"},
+  {"japanese": "じょうぎ座", "latin": "Norma", "abbr": "Nor"},
+  {"japanese": "はちぶんぎ座", "latin": "Octans", "abbr": "Oct"},
+  {"japanese": "へびつかい座", "latin": "Ophiuchus", "abbr": "Oph"},
+  {"japanese": "オリオン座", "latin": "Orion", "abbr": "Ori"},
+  {"japanese": "くじゃく座", "latin": "Pavo", "abbr": "Pav"},
+  {"japanese": "ペガスス座", "latin": "Pegasus", "abbr": "Peg"},
+  {"japanese": "ペルセウス座", "latin": "Perseus", "abbr": "Per"},
+  {"japanese": "ほうおう座", "latin": "Phoenix", "abbr": "Phe"},
+  {"japanese": "がか座", "latin": "Pictor", "abbr": "Pic"},
+  {"japanese": "うお座", "latin": "Pisces", "abbr": "Psc"},
+  {"japanese": "みなみのうお座", "latin": "Piscis Austrinus", "abbr": "PsA"},
+  {"japanese": "とも座", "latin": "Puppis", "abbr": "Pup"},
+  {"japanese": "らしんばん座", "latin": "Pyxis", "abbr": "Pyx"},
+  {"japanese": "レチクル座", "latin": "Reticulum", "abbr": "Ret"},
+  {"japanese": "や座", "latin": "Sagitta", "abbr": "Sge"},
+  {"japanese": "いて座", "latin": "Sagittarius", "abbr": "Sgr"},
+  {"japanese": "さそり座", "latin": "Scorpius", "abbr": "Sco"},
+  {"japanese": "ちょうこくしつ座", "latin": "Sculptor", "abbr": "Scl"},
+  {"japanese": "たて座", "latin": "Scutum", "abbr": "Sct"},
+  {"japanese": "へび座", "latin": "Serpens", "abbr": "Ser"},
+  {"japanese": "ろくぶんぎ座", "latin": "Sextans", "abbr": "Sex"},
+  {"japanese": "おうし座", "latin": "Taurus", "abbr": "Tau"},
+  {"japanese": "ぼうえんきょう座", "latin": "Telescopium", "abbr": "Tel"},
+  {"japanese": "さんかく座", "latin": "Triangulum", "abbr": "Tri"},
+  {"japanese": "みなみのさんかく座", "latin": "Triangulum Australe", "abbr": "TrA"},
+  {"japanese": "きょしちょう座", "latin": "Tucana", "abbr": "Tuc"},
+  {"japanese": "おおぐま座", "latin": "Ursa Major", "abbr": "UMa"},
+  {"japanese": "こぐま座", "latin": "Ursa Minor", "abbr": "UMi"},
+  {"japanese": "ほ座", "latin": "Vela", "abbr": "Vel"},
+  {"japanese": "おとめ座", "latin": "Virgo", "abbr": "Vir"},
+  {"japanese": "とびうお座", "latin": "Volans", "abbr": "Vol"},
+  {"japanese": "こぎつね座", "latin": "Vulpecula", "abbr": "Vul"}
+]
+'''
+
+@st.cache_data
+def load_constellations():
+    return json.loads(CONSTELLATIONS_JSON)
+
+def init_session_state():
+    if "mode" not in st.session_state:
+        st.session_state.mode = "home"
+    if "card_index" not in st.session_state:
+        st.session_state.card_index = 0
+    if "show_answer" not in st.session_state:
+        st.session_state.show_answer = False
+    if "shuffled_data" not in st.session_state:
+        st.session_state.shuffled_data = []
+    if "quiz_index" not in st.session_state:
+        st.session_state.quiz_index = 0
+    if "score" not in st.session_state:
+        st.session_state.score = 0
+    if "quiz_answered" not in st.session_state:
+        st.session_state.quiz_answered = False
+    if "quiz_type" not in st.session_state:
+        st.session_state.quiz_type = "japanese_to_latin"
+    if "answer_mode" not in st.session_state:
+        st.session_state.answer_mode = "choice"
+    if "choices" not in st.session_state:
+        st.session_state.choices = []
+    if "user_answer" not in st.session_state:
+        st.session_state.user_answer = ""
+    if "is_correct" not in st.session_state:
+        st.session_state.is_correct = None
+
+def reset_quiz():
+    st.session_state.quiz_index = 0
+    st.session_state.score = 0
+    st.session_state.quiz_answered = False
+    st.session_state.is_correct = None
+    st.session_state.user_answer = ""
+
+def shuffle_data(data):
+    shuffled = data.copy()
+    random.shuffle(shuffled)
+    return shuffled
+
+def get_question_and_answer(constellation, quiz_type):
+    if quiz_type == "japanese_to_latin":
+        return constellation["japanese"], constellation["latin"]
+    elif quiz_type == "japanese_to_abbr":
+        return constellation["japanese"], constellation["abbr"]
+    elif quiz_type == "abbr_to_japanese":
+        return constellation["abbr"], constellation["japanese"]
+
+def generate_choices(correct_answer, all_data, quiz_type):
+    if quiz_type == "japanese_to_latin":
+        all_answers = [c["latin"] for c in all_data]
+    elif quiz_type == "japanese_to_abbr":
+        all_answers = [c["abbr"] for c in all_data]
+    elif quiz_type == "abbr_to_japanese":
+        all_answers = [c["japanese"] for c in all_data]
+
+    wrong_answers = [a for a in all_answers if a != correct_answer]
+    choices = random.sample(wrong_answers, min(3, len(wrong_answers)))
+    choices.append(correct_answer)
+    random.shuffle(choices)
+    return choices
+
+def home_page():
+    st.title("88星座テスト")
+    st.markdown("IAUが定める88星座の名称を学習・テストするアプリです")
+
+    st.markdown("---")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("フラッシュカード")
+        st.write("カードをめくって星座を学習します")
+        if st.button("フラッシュカードを始める", use_container_width=True):
+            data = load_constellations()
+            st.session_state.shuffled_data = shuffle_data(data)
+            st.session_state.card_index = 0
+            st.session_state.show_answer = False
+            st.session_state.mode = "flashcard"
+            st.rerun()
+
+    with col2:
+        st.subheader("クイズ")
+        st.write("問題に答えて理解度をチェック")
+        if st.button("クイズを始める", use_container_width=True):
+            st.session_state.mode = "quiz_setup"
+            st.rerun()
+
+def flashcard_page():
+    st.title("フラッシュカード")
+
+    if st.button("← ホームに戻る"):
+        st.session_state.mode = "home"
+        st.rerun()
+
+    data = st.session_state.shuffled_data
+    index = st.session_state.card_index
+
+    st.progress((index + 1) / len(data))
+    st.write(f"カード {index + 1} / {len(data)}")
+
+    constellation = data[index]
+
+    st.markdown("---")
+
+    st.markdown(f"### {constellation['japanese']}")
+
+    if st.session_state.show_answer:
+        st.success(f"**学名:** {constellation['latin']}")
+        st.info(f"**略称:** {constellation['abbr']}")
+    else:
+        st.markdown("*クリックして答えを表示*")
+
+    st.markdown("---")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        if index > 0:
+            if st.button("← 前へ", use_container_width=True):
+                st.session_state.card_index -= 1
+                st.session_state.show_answer = False
+                st.rerun()
+
+    with col2:
+        if st.session_state.show_answer:
+            if st.button("隠す", use_container_width=True):
+                st.session_state.show_answer = False
+                st.rerun()
+        else:
+            if st.button("答えを見る", use_container_width=True):
+                st.session_state.show_answer = True
+                st.rerun()
+
+    with col3:
+        if index < len(data) - 1:
+            if st.button("次へ →", use_container_width=True):
+                st.session_state.card_index += 1
+                st.session_state.show_answer = False
+                st.rerun()
+        else:
+            if st.button("シャッフル", use_container_width=True):
+                st.session_state.shuffled_data = shuffle_data(data)
+                st.session_state.card_index = 0
+                st.session_state.show_answer = False
+                st.rerun()
+
+def quiz_setup_page():
+    st.title("クイズ設定")
+
+    if st.button("← ホームに戻る"):
+        st.session_state.mode = "home"
+        st.rerun()
+
+    st.markdown("---")
+
+    st.subheader("出題形式")
+    quiz_type = st.radio(
+        "問題の種類を選んでください",
+        options=["japanese_to_latin", "japanese_to_abbr", "abbr_to_japanese"],
+        format_func=lambda x: {
+            "japanese_to_latin": "日本語 → 学名",
+            "japanese_to_abbr": "日本語 → 略称",
+            "abbr_to_japanese": "略称 → 日本語"
+        }[x]
+    )
+
+    st.subheader("回答方式")
+    answer_mode = st.radio(
+        "回答方式を選んでください",
+        options=["choice", "input"],
+        format_func=lambda x: {
+            "choice": "選択式（4択）",
+            "input": "入力式"
+        }[x]
+    )
+
+    st.markdown("---")
+
+    if st.button("クイズ開始", type="primary", use_container_width=True):
+        data = load_constellations()
+        st.session_state.shuffled_data = shuffle_data(data)
+        st.session_state.quiz_type = quiz_type
+        st.session_state.answer_mode = answer_mode
+        reset_quiz()
+        st.session_state.mode = "quiz"
+        st.rerun()
+
+def quiz_page():
+    st.title("クイズ")
+
+    data = st.session_state.shuffled_data
+    index = st.session_state.quiz_index
+    quiz_type = st.session_state.quiz_type
+    answer_mode = st.session_state.answer_mode
+
+    if index >= len(data):
+        st.balloons()
+        st.success(f"クイズ終了！ スコア: {st.session_state.score} / {len(data)}")
+
+        percentage = (st.session_state.score / len(data)) * 100
+        st.progress(percentage / 100)
+        st.write(f"正答率: {percentage:.1f}%")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("もう一度", use_container_width=True):
+                st.session_state.shuffled_data = shuffle_data(data)
+                reset_quiz()
+                st.rerun()
+        with col2:
+            if st.button("ホームに戻る", use_container_width=True):
+                st.session_state.mode = "home"
+                st.rerun()
+        return
+
+    st.progress((index + 1) / len(data))
+    st.write(f"問題 {index + 1} / {len(data)} | スコア: {st.session_state.score}")
+
+    constellation = data[index]
+    question, correct_answer = get_question_and_answer(constellation, quiz_type)
+
+    st.markdown("---")
+
+    type_label = {
+        "japanese_to_latin": "学名を答えてください",
+        "japanese_to_abbr": "略称（3文字）を答えてください",
+        "abbr_to_japanese": "日本語名を答えてください"
+    }[quiz_type]
+
+    st.write(type_label)
+    st.markdown(f"## {question}")
+
+    st.markdown("---")
+
+    if answer_mode == "choice":
+        if not st.session_state.quiz_answered:
+            if not st.session_state.choices:
+                st.session_state.choices = generate_choices(correct_answer, data, quiz_type)
+
+            for choice in st.session_state.choices:
+                if st.button(choice, use_container_width=True, key=f"choice_{choice}"):
+                    st.session_state.quiz_answered = True
+                    st.session_state.user_answer = choice
+                    if choice == correct_answer:
+                        st.session_state.score += 1
+                        st.session_state.is_correct = True
+                    else:
+                        st.session_state.is_correct = False
+                    st.rerun()
+        else:
+            if st.session_state.is_correct:
+                st.success(f"正解！ 答え: {correct_answer}")
+            else:
+                st.error(f"不正解... 正解は: {correct_answer}")
+                st.write(f"あなたの回答: {st.session_state.user_answer}")
+
+            if st.button("次の問題へ →", use_container_width=True):
+                st.session_state.quiz_index += 1
+                st.session_state.quiz_answered = False
+                st.session_state.is_correct = None
+                st.session_state.choices = []
+                st.session_state.user_answer = ""
+                st.rerun()
+
+    else:
+        if not st.session_state.quiz_answered:
+            user_input = st.text_input("回答を入力してください", key="quiz_input")
+
+            if st.button("回答する", use_container_width=True):
+                st.session_state.quiz_answered = True
+                st.session_state.user_answer = user_input.strip()
+
+                if user_input.strip().lower() == correct_answer.lower():
+                    st.session_state.score += 1
+                    st.session_state.is_correct = True
+                else:
+                    st.session_state.is_correct = False
+                st.rerun()
+        else:
+            if st.session_state.is_correct:
+                st.success(f"正解！ 答え: {correct_answer}")
+            else:
+                st.error(f"不正解... 正解は: {correct_answer}")
+                st.write(f"あなたの回答: {st.session_state.user_answer}")
+
+            if st.button("次の問題へ →", use_container_width=True):
+                st.session_state.quiz_index += 1
+                st.session_state.quiz_answered = False
+                st.session_state.is_correct = None
+                st.session_state.user_answer = ""
+                st.rerun()
+
+    st.markdown("---")
+    if st.button("クイズを終了"):
+        st.session_state.mode = "home"
+        st.rerun()
+
+def main():
+    st.set_page_config(
+        page_title="88星座テスト",
+        page_icon="⭐",
+        layout="centered"
+    )
+
+    init_session_state()
+
+    if st.session_state.mode == "home":
+        home_page()
+    elif st.session_state.mode == "flashcard":
+        flashcard_page()
+    elif st.session_state.mode == "quiz_setup":
+        quiz_setup_page()
+    elif st.session_state.mode == "quiz":
+        quiz_page()
+
+if __name__ == "__main__":
+    main()
+`,
+          },
+        },
+        document.getElementById("root")
+      );
+    </script>
+  </body>
+</html>
