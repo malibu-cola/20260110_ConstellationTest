@@ -42,6 +42,7 @@ def reset_quiz():
     st.session_state.quiz_answered = False
     st.session_state.is_correct = None
     st.session_state.user_answer = ""
+    st.session_state.choices = []
 
 def shuffle_data(data):
     shuffled = data.copy()
@@ -76,7 +77,7 @@ def home_page():
 
     st.markdown("---")
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         st.subheader("フラッシュカード")
@@ -94,6 +95,13 @@ def home_page():
         st.write("問題に答えて理解度をチェック")
         if st.button("クイズを始める", use_container_width=True):
             st.session_state.mode = "quiz_setup"
+            st.rerun()
+
+    with col3:
+        st.subheader("一覧")
+        st.write("88星座の名称・略称・学名を確認")
+        if st.button("一覧を見る", use_container_width=True):
+            st.session_state.mode = "list"
             st.rerun()
 
 def flashcard_page():
@@ -269,6 +277,8 @@ def quiz_page():
                 st.error(f"不正解... 正解は: {correct_answer}")
                 st.write(f"あなたの回答: {st.session_state.user_answer}")
 
+            st.info(f"**{constellation['japanese']}** ({constellation['latin']} / {constellation['abbr']})\n\n{constellation.get('explanation', '')}")
+
             if st.button("次の問題へ →", use_container_width=True):
                 st.session_state.quiz_index += 1
                 st.session_state.quiz_answered = False
@@ -300,6 +310,8 @@ def quiz_page():
                 st.error(f"不正解... 正解は: {correct_answer}")
                 st.write(f"あなたの回答: {st.session_state.user_answer}")
 
+            st.info(f"**{constellation['japanese']}** ({constellation['latin']} / {constellation['abbr']})\n\n{constellation.get('explanation', '')}")
+
             if st.button("次の問題へ →", use_container_width=True):
                 st.session_state.quiz_index += 1
                 st.session_state.quiz_answered = False
@@ -311,6 +323,39 @@ def quiz_page():
     if st.button("クイズを終了"):
         st.session_state.mode = "home"
         st.rerun()
+
+def list_page():
+    st.title("88星座一覧")
+
+    if st.button("← ホームに戻る"):
+        st.session_state.mode = "home"
+        st.rerun()
+
+    st.markdown("---")
+
+    data = load_constellations()
+
+    # 検索フィルター
+    search = st.text_input("検索（日本語名、学名、略称）", "")
+
+    if search:
+        filtered_data = [
+            c for c in data
+            if search.lower() in c["japanese"].lower()
+            or search.lower() in c["latin"].lower()
+            or search.lower() in c["abbr"].lower()
+        ]
+    else:
+        filtered_data = data
+
+    st.write(f"全 {len(filtered_data)} 件")
+
+    # テーブル表示
+    for i, constellation in enumerate(filtered_data):
+        with st.expander(f"{constellation['japanese']} ({constellation['abbr']})"):
+            st.markdown(f"**学名:** {constellation['latin']}")
+            st.markdown(f"**略称:** {constellation['abbr']}")
+            st.caption(constellation.get('explanation', ''))
 
 def main():
     st.set_page_config(
@@ -329,6 +374,8 @@ def main():
         quiz_setup_page()
     elif st.session_state.mode == "quiz":
         quiz_page()
+    elif st.session_state.mode == "list":
+        list_page()
 
 if __name__ == "__main__":
     main()
