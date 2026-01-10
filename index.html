@@ -152,6 +152,7 @@ def reset_quiz():
     st.session_state.quiz_answered = False
     st.session_state.is_correct = None
     st.session_state.user_answer = ""
+    st.session_state.choices = []
 
 def shuffle_data(data):
     shuffled = data.copy()
